@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Critical Music Inspired</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        html {
+            height: 100vh; /* Ensure html element is also viewport height */
+            overflow-y: hidden; /* Prevent vertical scroll on html */
+            overflow-x: hidden; /* Prevent horizontal scroll on html */
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000000; /* Black background */
+            color: #FFFFFF; /* White text */
+            overscroll-behavior-y: contain; /* Prevents overscrolling on the body */
+            height: 100vh; /* Force body to viewport height */
+            overflow-y: hidden; /* Body itself should not scroll; .scroll-container will */
+            margin: 0; /* Ensure no default body margin */
+            padding: 0; /* Ensure no default body padding */
+        }
+
+        .scroll-container {
+            scroll-snap-type: y mandatory;
+            overflow-y: scroll;
+            height: 100vh; /* Takes full viewport height from its parent (body) */
+            width: 100vw; /* Ensure it takes full viewport width */
+        }
+
+        .scroll-section {
+            scroll-snap-align: start;
+            height: 100vh;
+            width: 100%; 
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding-top: 7rem; 
+            padding-left: 2rem;
+            padding-right: 2rem;
+            padding-bottom: 2rem;
+            box-sizing: border-box; 
+        }
+
+        /* Navbar styling */
+        .navbar {
+            background-color: rgba(10, 10, 10, 0.8); 
+            backdrop-filter: blur(10px);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 50;
+            border-bottom: 1px solid #333333; 
+            height: 5rem; 
+        }
+
+        .nav-link {
+            color: #CCCCCC; 
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: #FFFFFF; 
+        }
+
+        .dropdown-menu {
+            background-color: #1a1a1a; 
+            border: 1px solid #333333;
+        }
+        .dropdown-item {
+            color: #CCCCCC;
+        }
+        .dropdown-item:hover {
+            background-color: #2a2a2a; 
+            color: #FFFFFF;
+        }
+
+        /* Section specific background colors */
+        #hero { background-color: #111111; }
+        #releases { background-color: #181818; }
+        #artists { background-color: #111111; }
+        #events { background-color: #181818; }
+        #contact { background-color: #111111; }
+
+        /* Custom scrollbar */
+        .scroll-container::-webkit-scrollbar,
+        .scrollable-content::-webkit-scrollbar {
+            width: 8px;
+        }
+        .scroll-container::-webkit-scrollbar-track,
+        .scrollable-content::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+        .scroll-container::-webkit-scrollbar-thumb,
+        .scrollable-content::-webkit-scrollbar-thumb {
+            background-color: #444444;
+            border-radius: 4px;
+            border: 2px solid #1a1a1a;
+        }
+        .mobile-menu-button svg {
+            stroke: #FFFFFF; 
+        }
+
+        /* Slideshow specific styles */
+        .slideshow-container {
+            position: relative;
+            width: 100%; 
+            margin: auto;
+            overflow: hidden; 
+            border-radius: 0.5rem; 
+        }
+
+        .slide {
+            display: none; 
+            width: 100%;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .slide.active {
+            display: block; 
+        }
+
+        .slide img {
+            width: 100%;
+            height: auto; 
+            max-height: 70vh; 
+            object-fit: cover; 
+            border-radius: 0.5rem; 
+        }
+
+        .slideshow-controls {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            transform: translateY(-50%);
+            padding: 0 1.5rem; 
+            box-sizing: border-box;
+            z-index: 10; 
+        }
+
+        .slideshow-controls button {
+            background-color: rgba(26, 26, 26, 0.6);
+            color: white;
+            border: none;
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border-radius: 0.375rem;
+            font-size: 1.25rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .slideshow-controls button:hover {
+            background-color: rgba(42, 42, 42, 0.8);
+        }
+        
+        .slideshow-dots {
+            position: absolute; 
+            bottom: 20px; 
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 10; 
+        }
+
+        .dot {
+            cursor: pointer;
+            height: 12px;
+            width: 12px;
+            margin: 0 5px; 
+            background-color: rgba(200, 200, 200, 0.5); 
+            border: 1px solid rgba(0,0,0,0.2); 
+            border-radius: 50%;
+            display: inline-block;
+            transition: background-color 0.3s ease;
+        }
+
+        .dot.active, .dot:hover {
+            background-color: rgba(255, 255, 255, 0.9); 
+        }
+
+        /* Artist section specific styles */
+        .artists-content-wrapper {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .artists-layout-container {
+            display: flex;
+            width: 100%;
+            gap: 1.5rem; 
+            align-items: flex-start; 
+            flex-grow: 1; 
+            overflow: hidden; 
+        }
+
+        .artist-grid-container {
+            flex-basis: 40%; 
+            flex-shrink: 0; 
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); 
+            gap: 1rem;
+            overflow-y: auto; 
+            max-height: 100%; 
+        }
+        
+        .artists-layout-container.description-hidden .artist-grid-container {
+            flex-basis: 100%; 
+            grid-template-columns: repeat(3, 1fr); 
+        }
+        .artists-layout-container.description-hidden .artist-description-panel {
+            display: none; 
+        }
+
+        .artist-item-wrapper { 
+            cursor: pointer;
+            min-width: 0;
+        }
+
+        #artists .artist-image {
+            width: 100%;
+            aspect-ratio: 1 / 1; 
+            object-fit: cover; 
+            border-radius: 0.25rem; 
+            border: 4px solid #4a5568; 
+            transition: border-color 0.3s ease;
+        }
+        
+        #artists .artist-item-wrapper.active-artist .artist-image {
+            border-color: #FFFFFF; 
+        }
+
+        .artist-description-panel {
+            flex-basis: 60%; 
+            flex-shrink: 0; 
+            background-color: #1f2937; 
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            height: auto; 
+            max-height: 100%; 
+            overflow-y: auto; 
+        }
+        .artist-description-panel h3 {
+            font-size: 1.75rem;
+            font-weight: bold;
+            margin-bottom: 0.75rem;
+        }
+        .artist-description-panel p {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #d1d5db; 
+        }
+        
+        /* Responsive adjustments for mobile */
+        @media (max-width: 767px) {
+            .artists-layout-container {
+                flex-direction: column;
+                overflow-y: auto;
+            }
+
+            .artist-grid-container {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr); /* 2 columns on mobile */
+                width: 100%;
+                overflow-y: visible;
+                max-height: none;
+                flex-basis: auto;
+            }
+            
+            #artistDescriptionPanel {
+                display: none !important; /* Always hide the side panel on mobile */
+            }
+
+            .artist-inline-description {
+                text-align: left;
+                padding: 1rem;
+                background-color: #1f2937;
+                border-radius: 0.5rem;
+                margin-top: 1rem;
+                grid-column: 1 / -1; /* Span full width of the grid */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
+            <div class="relative flex items-center justify-center h-full">
+                <div class="absolute left-0 top-0 bottom-0 flex items-center">
+                    <a href="#" class="text-3xl font-bold text-white">CRITICAL</a>
+                </div>
+                <div class="hidden md:block">
+                    <div class="flex items-baseline space-x-6">
+                        <a href="#hero" class="nav-link px-4 py-3 rounded-md text-base font-medium">Home</a>
+                        <div class="relative" id="musicDropdownContainer">
+                            <button type="button" class="nav-link group inline-flex items-center px-4 py-3 rounded-md text-base font-medium focus:outline-none" id="musicDropdownButton">
+                                <span>Music</span>
+                                <svg class="ml-2 -mr-1 h-5 w-5 text-gray-400 group-hover:text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                            <div class="dropdown-menu origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none hidden" id="musicDropdownMenu">
+                                <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="musicDropdownButton">
+                                    <a href="#releases" class="dropdown-item block px-4 py-2 text-base" role="menuitem">Releases</a>
+                                    <a href="#artists" class="dropdown-item block px-4 py-2 text-base" role="menuitem">Artists</a>
+                                    <a href="#" class="dropdown-item block px-4 py-2 text-base" role="menuitem">Radio (Placeholder)</a>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="#events" class="nav-link px-4 py-3 rounded-md text-base font-medium">Events</a>
+                        <a href="#" class="nav-link px-4 py-3 rounded-md text-base font-medium">Store (Placeholder)</a>
+                        <a href="#contact" class="nav-link px-4 py-3 rounded-md text-base font-medium">Contact</a>
+                    </div>
+                </div>
+                <div class="absolute right-0 top-0 bottom-0 flex items-center md:hidden">
+                    <button type="button" class="mobile-menu-button inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white" aria-controls="mobile-menu" aria-expanded="false" id="mobileMenuButton">
+                        <span class="sr-only">Open main menu</span>
+                        <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                        <svg class="hidden h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="md:hidden hidden bg-black bg-opacity-90 backdrop-blur-md" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#hero" class="nav-link block px-3 py-2 rounded-md text-base font-medium">Home</a>
+                <div> 
+                    <button type="button" class="nav-link group w-full text-left inline-flex items-center px-3 py-2 rounded-md text-base font-medium focus:outline-none" id="mobileMusicDropdownButton">
+                        <span>Music</span>
+                        <svg class="ml-2 -mr-1 h-5 w-5 text-gray-400 group-hover:text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                    <div class="pl-4 mt-1 space-y-1 hidden" id="mobileMusicDropdownMenu">
+                        <a href="#releases" class="dropdown-item block px-3 py-2 rounded-md text-base font-medium">Releases</a>
+                        <a href="#artists" class="dropdown-item block px-3 py-2 rounded-md text-base font-medium">Artists</a>
+                        <a href="#" class="dropdown-item block px-3 py-2 rounded-md text-base font-medium">Radio (Placeholder)</a>
+                    </div>
+                </div>
+                <a href="#events" class="nav-link block px-3 py-2 rounded-md text-base font-medium">Events</a>
+                <a href="#" class="nav-link block px-3 py-2 rounded-md text-base font-medium">Store (Placeholder)</a>
+                <a href="#contact" class="nav-link block px-3 py-2 rounded-md text-base font-medium">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Scrollable Content Area -->
+    <div class="scroll-container">
+        <!-- Hero Section -->
+        <section id="hero" class="scroll-section text-center">
+            <div class="max-w-3xl mx-auto">
+                <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight">FUTURE SOUNDS</h1>
+                <p class="text-xl md:text-2xl text-gray-300 mb-8">Experience the cutting edge of drum and bass.</p>
+                <a href="#releases" class="bg-white text-black hover:bg-gray-200 font-semibold py-3 px-8 rounded-lg text-lg transition duration-300">Explore Releases</a>
+            </div>
+        </section>
+
+        <!-- Releases Section - Slideshow -->
+        <section id="releases" class="scroll-section">
+            <div class="text-center w-full mx-auto"> 
+                <h2 class="text-4xl font-bold mb-8">LATEST RELEASES</h2>
+                <div class="slideshow-container" id="releasesSlideshow">
+                    <div class="slide active">
+                        <img src="https://placehold.co/1200x500/1a1a1a/4a4a4a?text=Full+Width+Art+1" alt="Album Art 1">
+                    </div>
+                    <div class="slide">
+                        <img src="https://placehold.co/1200x500/1a1a1a/4a4a4a?text=Full+Width+Art+2" alt="Album Art 2">
+                    </div>
+                    <div class="slide">
+                        <img src="https://placehold.co/1200x500/1a1a1a/4a4a4a?text=Full+Width+Art+3" alt="Album Art 3">
+                    </div>
+                     <div class="slide">
+                        <img src="https://placehold.co/1200x500/1a1a1a/4a4a4a?text=Full+Width+Art+4" alt="Album Art 4">
+                    </div>
+
+                    <div class="slideshow-controls">
+                        <button id="prevSlide" aria-label="Previous slide">&#10094;</button>
+                        <button id="nextSlide" aria-label="Next slide">&#10095;</button>
+                    </div>
+                    <div class="slideshow-dots" id="slideDots"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Artists Section -->
+        <section id="artists" class="scroll-section">
+            <div class="artists-content-wrapper max-w-7xl mx-auto text-center"> 
+                <h2 class="text-4xl font-bold mb-8 flex-shrink-0">OUR ARTISTS</h2>
+                <div class="artists-layout-container" id="artistsLayoutContainer">
+                    <div class="artist-grid-container scrollable-content" id="artistGrid">
+                        <!-- Artists will be populated here by JavaScript -->
+                    </div>
+                    <div class="artist-description-panel scrollable-content" id="artistDescriptionPanel">
+                        <h3 id="descArtistName">Select an Artist</h3>
+                        <p id="descArtistBio">Click on an artist from the list to see their description.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Events Section -->
+        <section id="events" class="scroll-section">
+             <div class="text-center w-full max-w-4xl mx-auto h-full flex flex-col">
+                <h2 class="text-4xl font-bold mb-8 flex-shrink-0">UPCOMING EVENTS</h2>
+                <div class="space-y-8 flex-grow overflow-y-auto scrollable-content pb-4">
+                    <div class="bg-gray-800 p-6 rounded-lg shadow-xl flex flex-col sm:flex-row items-center sm:space-x-6">
+                        <div class="flex-shrink-0 mb-4 sm:mb-0">
+                            <div class="bg-gray-700 text-white rounded-md p-3 text-center w-24">
+                                <p class="text-3xl font-bold">25</p>
+                                <p class="text-sm">JUL</p>
+                            </div>
+                        </div>
+                        <div class="text-center sm:text-left">
+                            <h3 class="text-2xl font-semibold mb-1">Critical Sound @ Fabric, London</h3>
+                            <p class="text-gray-400 mb-2">Fabric, 77A Charterhouse St, London</p>
+                            <a href="#" class="text-white hover:underline font-medium">More Info & Tickets &rarr;</a>
+                        </div>
+                    </div>
+                    <div class="bg-gray-800 p-6 rounded-lg shadow-xl flex flex-col sm:flex-row items-center sm:space-x-6">
+                         <div class="flex-shrink-0 mb-4 sm:mb-0">
+                            <div class="bg-gray-700 text-white rounded-md p-3 text-center w-24">
+                                <p class="text-3xl font-bold">10</p>
+                                <p class="text-sm">AUG</p>
+                            </div>
+                        </div>
+                        <div class="text-center sm:text-left">
+                            <h3 class="text-2xl font-semibold mb-1">Critical Summer BBQ - Bristol</h3>
+                            <p class="text-gray-400 mb-2">Motion Bristol, 74-78 Avon St, Bristol</p>
+                            <a href="#" class="text-white hover:underline font-medium">More Info & Tickets &rarr;</a>
+                        </div>
+                    </div>
+                    <div class="bg-gray-800 p-6 rounded-lg shadow-xl flex flex-col sm:flex-row items-center sm:space-x-6">
+                         <div class="flex-shrink-0 mb-4 sm:mb-0">
+                            <div class="bg-gray-700 text-white rounded-md p-3 text-center w-24">
+                                <p class="text-3xl font-bold">18</p>
+                                <p class="text-sm">SEP</p>
+                            </div>
+                        </div>
+                        <div class="text-center sm:text-left">
+                            <h3 class="text-2xl font-semibold mb-1">Critical Music @ ADE, Amsterdam</h3>
+                            <p class="text-gray-400 mb-2">Melkweg, Lijnbaansgracht 234A, Amsterdam</p>
+                            <a href="#" class="text-white hover:underline font-medium">More Info & Tickets &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="scroll-section">
+            <div class="text-center w-full max-w-2xl mx-auto">
+                <h2 class="text-4xl font-bold mb-8">GET IN TOUCH</h2>
+                <p class="text-gray-300 mb-8 text-lg">
+                    For bookings, demos, or general inquiries, please reach out.
+                </p>
+                <form action="#" method="POST" class="space-y-6">
+                    <div>
+                        <label for="name" class="sr-only">Full name</label>
+                        <input type="text" name="name" id="name" autocomplete="name" required class="block w-full bg-gray-800 border border-gray-700 rounded-md py-3 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500" placeholder="Full name">
+                    </div>
+                    <div>
+                        <label for="email" class="sr-only">Email</label>
+                        <input type="email" name="email" id="email" autocomplete="email" required class="block w-full bg-gray-800 border border-gray-700 rounded-md py-3 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500" placeholder="Email address">
+                    </div>
+                    <div>
+                        <label for="message" class="sr-only">Message</label>
+                        <textarea id="message" name="message" rows="4" required class="block w-full bg-gray-800 border border-gray-700 rounded-md py-3 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500" placeholder="Your message"></textarea>
+                    </div>
+                    <div>
+                        <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-black bg-white hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-white transition duration-300">
+                            Send Message
+                        </button>
+                    </div>
+                </form>
+                <p class="mt-8 text-gray-400">Alternatively, email us at: <a href="mailto:info@criticalmusic-clone.com" class="text-white hover:underline">info@criticalmusic-clone.com</a></p>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Desktop Dropdown
+            const musicDropdownButton = document.getElementById('musicDropdownButton');
+            const musicDropdownMenu = document.getElementById('musicDropdownMenu');
+            const musicDropdownContainer = document.getElementById('musicDropdownContainer');
+
+            if (musicDropdownButton && musicDropdownMenu) {
+                musicDropdownButton.addEventListener('click', function (event) {
+                    event.stopPropagation(); 
+                    musicDropdownMenu.classList.toggle('hidden');
+                });
+                document.addEventListener('click', function (event) {
+                    if (musicDropdownContainer && !musicDropdownContainer.contains(event.target)) {
+                        musicDropdownMenu.classList.add('hidden');
+                    }
+                });
+            }
+            
+            // Mobile Menu Toggle
+            const mobileMenuButton = document.getElementById('mobileMenuButton');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const mobileMenuIcons = mobileMenuButton.querySelectorAll('svg');
+
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', function () {
+                    mobileMenu.classList.toggle('hidden');
+                    mobileMenuIcons[0].classList.toggle('hidden'); 
+                    mobileMenuIcons[1].classList.toggle('hidden'); 
+                });
+            }
+
+            // Mobile Dropdown
+            const mobileMusicDropdownButton = document.getElementById('mobileMusicDropdownButton');
+            const mobileMusicDropdownMenu = document.getElementById('mobileMusicDropdownMenu');
+            
+            if(mobileMusicDropdownButton && mobileMusicDropdownMenu) {
+                mobileMusicDropdownButton.addEventListener('click', function() {
+                    mobileMusicDropdownMenu.classList.toggle('hidden');
+                });
+            }
+
+            // Close menus when a nav link is clicked
+            document.querySelectorAll('nav a[href^="#"], .dropdown-menu a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+                         mobileMenu.classList.add('hidden');
+                         mobileMenuIcons[0].classList.remove('hidden');
+                         mobileMenuIcons[1].classList.add('hidden');
+                    }
+                    if (musicDropdownMenu && !musicDropdownMenu.classList.contains('hidden')) {
+                        musicDropdownMenu.classList.add('hidden');
+                    }
+                     if (mobileMusicDropdownMenu && !mobileMusicDropdownMenu.classList.contains('hidden')) {
+                        mobileMusicDropdownMenu.classList.add('hidden');
+                    }
+                });
+            });
+
+            // Update active nav link based on scroll
+            const sections = document.querySelectorAll('.scroll-section');
+            const navLinksDesktop = document.querySelectorAll('.navbar .hidden.md\\:block .nav-link');
+            const mobileNavLinks = document.querySelectorAll('#mobile-menu .nav-link'); 
+            const scrollContainer = document.querySelector('.scroll-container');
+            const navbarHeight = document.querySelector('.navbar').offsetHeight; 
+
+            if (scrollContainer) {
+                scrollContainer.addEventListener('scroll', () => {
+                    let currentSectionId = '';
+                    sections.forEach(section => {
+                        const sectionTopInContainer = section.offsetTop - scrollContainer.offsetTop;
+                        const triggerPoint = sectionTopInContainer - navbarHeight; 
+                        if (scrollContainer.scrollTop >= triggerPoint - (window.innerHeight / 3) && 
+                            scrollContainer.scrollTop < triggerPoint + section.offsetHeight - (window.innerHeight / 3)) {
+                            currentSectionId = section.getAttribute('id');
+                        }
+                    });
+                    
+                    navLinksDesktop.forEach(link => {
+                        link.classList.remove('active');
+                        const isDirectLink = link.getAttribute('href') === `#${currentSectionId}`;
+                        const isDropdownParent = link.id === 'musicDropdownButton' && (currentSectionId === 'releases' || currentSectionId === 'artists');
+                        if (isDirectLink || isDropdownParent) {
+                            link.classList.add('active');
+                        }
+                    });
+
+                    mobileNavLinks.forEach(link => {
+                        link.classList.remove('active'); 
+                        const isDirectLink = link.getAttribute('href') === `#${currentSectionId}`;
+                        const isDropdownParent = link.id === 'mobileMusicDropdownButton' && (currentSectionId === 'releases' || currentSectionId === 'artists');
+                         if (isDirectLink || isDropdownParent) {
+                            link.classList.add('active');
+                        }
+                    });
+                });
+            }
+
+            // Releases Slideshow Logic
+            const slideshowContainer = document.getElementById('releasesSlideshow');
+            if (slideshowContainer) {
+                const slides = slideshowContainer.querySelectorAll('.slide');
+                const dotsContainer = slideshowContainer.querySelector('.slideshow-dots');
+                const prevButton = document.getElementById('prevSlide');
+                const nextButton = document.getElementById('nextSlide');
+                let currentSlideIdx = 0;
+                let slideInterval;
+
+                function showSlide(index) {
+                    slides.forEach((slide, i) => {
+                        slide.classList.remove('active');
+                        if (i === index) {
+                            slide.classList.add('active');
+                        }
+                    });
+                    updateDots(index);
+                    currentSlideIdx = index;
+                }
+
+                function updateDots(index) {
+                    if (!dotsContainer) return; 
+                    const dots = dotsContainer.querySelectorAll('.dot');
+                    dots.forEach((dot, i) => {
+                        dot.classList.remove('active');
+                        if (i === index) {
+                            dot.classList.add('active');
+                        }
+                    });
+                }
+
+                function nextSlideFn() { 
+                    currentSlideIdx = (currentSlideIdx + 1) % slides.length;
+                    showSlide(currentSlideIdx);
+                }
+
+                function prevSlideFn() { 
+                    currentSlideIdx = (currentSlideIdx - 1 + slides.length) % slides.length;
+                    showSlide(currentSlideIdx);
+                }
+
+                function startSlideShowInterval() {
+                    stopSlideShowInterval(); 
+                    slideInterval = setInterval(nextSlideFn, 5000); 
+                }
+
+                function stopSlideShowInterval() {
+                    clearInterval(slideInterval);
+                }
+
+                if (slides.length > 0 && dotsContainer) { 
+                    dotsContainer.innerHTML = ''; 
+                    slides.forEach((_, i) => {
+                        const dot = document.createElement('span');
+                        dot.classList.add('dot');
+                        dot.addEventListener('click', () => {
+                            showSlide(i);
+                            startSlideShowInterval(); 
+                        });
+                        dotsContainer.appendChild(dot);
+                    });
+                    
+                    showSlide(0); 
+                    startSlideShowInterval();
+
+                    if (prevButton && nextButton) {
+                        prevButton.addEventListener('click', () => {
+                            prevSlideFn();
+                            startSlideShowInterval(); 
+                        });
+                        nextButton.addEventListener('click', () => {
+                            nextSlideFn();
+                            startSlideShowInterval(); 
+                        });
+                    }
+                    
+                    slideshowContainer.addEventListener('mouseenter', stopSlideShowInterval);
+                    slideshowContainer.addEventListener('mouseleave', startSlideShowInterval);
+                }
+            }
+
+            // Artist Description Logic
+            const artistsLayoutContainer = document.getElementById('artistsLayoutContainer');
+            const artistGrid = document.getElementById('artistGrid');
+            const artistDescriptionPanel = document.getElementById('artistDescriptionPanel');
+            const descArtistName = document.getElementById('descArtistName');
+            const descArtistBio = document.getElementById('descArtistBio');
+
+            const artistData = {
+                mefjus: { name: "MEFJUS", bio: "Martin Schober, known as Mefjus, is an Austrian drum and bass producer and DJ from Linz. He is renowned for his highly technical and intricate neurofunk sound, pushing the boundaries of sound design within the genre. He has released on Critical Music, Vision Recordings, and Neosignal." },
+                enei: { name: "ENEI", bio: "Alexey Egorchenkov, or Enei, hails from St. Petersburg, Russia. A prominent figure in the drum and bass scene, he's known for his versatile production, ranging from deep and rolling to hard-hitting dancefloor tracks. He is a core artist on Critical Music." },
+                kasra: { name: "KASRA", bio: "Kasra Mowlavi is the founder and label head of Critical Music. As a DJ and producer, he has been instrumental in shaping the modern sound of drum and bass, championing new talents and consistently delivering quality releases through his influential label." },
+                halogenix: { name: "HALOGENIX", bio: "Laurence Reading, aka Halogenix, is a London-based producer known for his soulful and often experimental take on drum and bass. Formerly part of Ivy Lab, his solo work continues to explore diverse soundscapes, with releases on Critical Music, 1985 Music, and more." },
+                imanu: { name: "IMANU", bio: "Jonathan Kievit, formerly known as Signal, is IMANU, a young producer from the Netherlands. He has quickly risen to prominence with his unique blend of experimental, melodic, and often futuristic drum and bass, often blurring genre lines. Releases on Vision, Critical, and UKF." }
+            };
+
+            function setDesktopArtistLayout(showDescription) {
+                if (!artistsLayoutContainer || !artistDescriptionPanel) return;
+                if (window.innerWidth > 767) {
+                    if (showDescription) {
+                        artistsLayoutContainer.classList.remove('description-hidden');
+                    } else {
+                        artistsLayoutContainer.classList.add('description-hidden');
+                    }
+                }
+            }
+            
+            function handleArtistClick(event) {
+                const clickedItem = event.currentTarget;
+                const isActive = clickedItem.classList.contains('active-artist');
+                const allItems = artistGrid.querySelectorAll('.artist-item-wrapper');
+
+                // Mobile logic: remove existing description box first
+                if (window.innerWidth <= 767) {
+                    const existingDesc = artistGrid.querySelector('.artist-inline-description');
+                    if (existingDesc) {
+                        existingDesc.remove();
+                    }
+                }
+
+                // Deactivate all items
+                allItems.forEach(item => item.classList.remove('active-artist'));
+                
+                // If re-clicking the same item, just close it and stop.
+                if (isActive) {
+                    setDesktopArtistLayout(false);
+                    return;
+                }
+
+                // Activate the new item
+                clickedItem.classList.add('active-artist');
+                const artistId = clickedItem.dataset.artistId;
+                const data = artistData[artistId];
+                if (!data) return;
+
+                if (window.innerWidth > 767) {
+                    // --- DESKTOP LOGIC ---
+                    descArtistName.textContent = data.name;
+                    descArtistBio.textContent = data.bio;
+                    setDesktopArtistLayout(true);
+                } else {
+                    // --- MOBILE LOGIC ---
+                    const descElement = document.createElement('div');
+                    descElement.className = 'artist-inline-description';
+                    descElement.innerHTML = `
+                        <h3 class="text-lg font-bold mb-2">${data.name}</h3>
+                        <p class="text-sm">${data.bio}</p>
+                    `;
+
+                    const clickedIndex = Array.from(allItems).indexOf(clickedItem);
+                    // In a 2-column grid, find the last item of the row
+                    const endOfRowIndex = (clickedIndex % 2 === 0) ? clickedIndex + 1 : clickedIndex;
+                    const endOfRowElement = allItems[endOfRowIndex] || allItems[clickedIndex];
+
+                    endOfRowElement.after(descElement);
+                }
+            }
+
+            // Populate grid and set up initial state
+            if (artistGrid) {
+                artistGrid.innerHTML = ''; // Clear grid
+                for (const artistId in artistData) {
+                    const artist = artistData[artistId];
+                    const itemWrapper = document.createElement('div');
+                    itemWrapper.className = 'artist-item-wrapper text-center group';
+                    itemWrapper.dataset.artistId = artistId;
+                    
+                    itemWrapper.innerHTML = `
+                        <img src="https://placehold.co/160x160/2d2d2d/5a5a5a?text=${artist.name}" alt="${artist.name}" class="artist-image mx-auto mb-2 transition-colors duration-300">
+                        <h3 class="text-md font-medium">${artist.name}</h3>
+                    `;
+                    itemWrapper.addEventListener('click', handleArtistClick);
+                    artistGrid.appendChild(itemWrapper);
+                }
+            }
+
+            if (artistsLayoutContainer) {
+                 setDesktopArtistLayout(false); // Initial desktop state
+            }
+
+            document.querySelectorAll('img').forEach(img => {
+                img.onerror = function() {
+                    const placeholderText = this.alt || "Image Failed";
+                    let width = this.naturalWidth || parseInt(this.style.width) || (this.closest('.slideshow-container') ? 1200 : (this.classList.contains('artist-image') ? 160 : 300)) ;
+                    let height = this.naturalHeight || parseInt(this.style.height) || (this.closest('.slideshow-container') ? 500 : (this.classList.contains('artist-image') ? 160 : 300));
+                    
+                    this.src = `https://placehold.co/${width}x${height}/1a1a1a/ffffff?text=${encodeURIComponent(placeholderText)}`;
+                    this.onerror = null; 
+                };
+            });
+        });
+    </script>
+
+</body>
+</html>
