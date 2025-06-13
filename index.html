@@ -507,24 +507,14 @@
         <section id="gallery" class="scroll-section" style="background-image: url('aboutUs/aboutUsBackground.jpeg')">
             <div class="text-center w-full max-w-5xl mx-auto"> 
                 <h2 class="text-4xl font-bold mb-8">GALLERY</h2>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="galleryGrid"></div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <img src="gallery/image1.JPG" alt="Gallery Image 1" class="rounded shadow-lg w-full object-cover aspect-square">
+                <img src="gallery/image2.JPG" alt="Gallery Image 2" class="rounded shadow-lg w-full object-cover aspect-square">
+                <img src="gallery/image3.JPG" alt="Gallery Image 3" class="rounded shadow-lg w-full object-cover aspect-square">
+                </div>
             </div>
         </section>
 
-        <script>
-        fetch('gallery/gallery.json')
-        .then(res => res.json())
-        .then(images => {
-            const grid = document.getElementById('galleryGrid');
-            images.forEach(src => {
-            const img = document.createElement('img');
-            img.src = src;
-            img.alt = "Gallery Image";
-            img.className = "rounded shadow-lg w-full object-cover aspect-square";
-            grid.appendChild(img);
-            });
-        });
-        </script>
         
         <!--Contact Section-->
         <section id="contact" class="scroll-section">
