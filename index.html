@@ -296,6 +296,18 @@
                 grid-column: 1 / -1; /* Span full width of the grid */
             }
         }
+
+        #lightboxModal {
+            transition: opacity 0.2s;
+            }
+            #lightboxModal.hidden {
+            opacity: 0;
+            pointer-events: none;
+            }
+            #lightboxModal:not(.hidden) {
+            opacity: 1;
+            pointer-events: auto;
+        }
         
     </style>
 </head>
@@ -491,6 +503,28 @@
         </section>
 
 
+        <!-- Gallery Section -->
+        <section id="gallery" class="scroll-section" style="background-image: url('aboutUs/aboutUsBackground.jpeg')">
+            <div class="text-center w-full max-w-5xl mx-auto"> 
+                <h2 class="text-4xl font-bold mb-8">GALLERY</h2>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="galleryGrid"></div>
+            </div>
+        </section>
+
+        <script>
+        fetch('gallery/gallery.json')
+        .then(res => res.json())
+        .then(images => {
+            const grid = document.getElementById('galleryGrid');
+            images.forEach(src => {
+            const img = document.createElement('img');
+            img.src = src;
+            img.alt = "Gallery Image";
+            img.className = "rounded shadow-lg w-full object-cover aspect-square";
+            grid.appendChild(img);
+            });
+        });
+        </script>
         
         <!--Contact Section-->
         <section id="contact" class="scroll-section">
@@ -523,6 +557,14 @@
                 </div>
             </div>
         </section>
+    </div>
+
+    <!-- Lightbox Modal -->
+    <div id="lightboxModal" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 hidden">
+        <span id="lightboxClose" class="absolute top-6 right-8 text-white text-4xl cursor-pointer select-none">&times;</span>
+        <button id="lightboxPrev" class="absolute left-4 md:left-12 text-white text-5xl font-bold px-2 py-1 bg-black bg-opacity-30 rounded-full hover:bg-opacity-60 transition select-none" aria-label="Previous">&#10094;</button>
+        <img id="lightboxImg" src="" alt="Gallery Full" class="max-h-[90vh] max-w-[90vw] rounded shadow-lg">
+        <button id="lightboxNext" class="absolute right-4 md:right-12 text-white text-5xl font-bold px-2 py-1 bg-black bg-opacity-30 rounded-full hover:bg-opacity-60 transition select-none" aria-label="Next">&#10095;</button>
     </div>
 
     <script>
@@ -827,6 +869,67 @@
                     this.src = `https://placehold.co/${width}x${height}/1a1a1a/ffffff?text=${encodeURIComponent(placeholderText)}`;
                     this.onerror = null;
                 };
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Lightbox logic with navigation
+            const lightboxModal = document.getElementById('lightboxModal');
+            const lightboxImg = document.getElementById('lightboxImg');
+            const lightboxClose = document.getElementById('lightboxClose');
+            const lightboxPrev = document.getElementById('lightboxPrev');
+            const lightboxNext = document.getElementById('lightboxNext');
+            const galleryImages = Array.from(document.querySelectorAll('#gallery img'));
+            let currentIndex = 0;
+
+            function showImage(index) {
+                if (index < 0) index = galleryImages.length - 1;
+                if (index >= galleryImages.length) index = 0;
+                currentIndex = index;
+                lightboxImg.src = galleryImages[currentIndex].src;
+            }
+
+            galleryImages.forEach((img, idx) => {
+                img.style.cursor = 'pointer';
+                img.addEventListener('click', function () {
+                    currentIndex = idx;
+                    showImage(currentIndex);
+                    lightboxModal.classList.remove('hidden');
+                });
+            });
+
+            lightboxPrev.addEventListener('click', function (e) {
+                e.stopPropagation();
+                showImage(currentIndex - 1);
+            });
+
+            lightboxNext.addEventListener('click', function (e) {
+                e.stopPropagation();
+                showImage(currentIndex + 1);
+            });
+
+            lightboxClose.addEventListener('click', () => {
+                lightboxModal.classList.add('hidden');
+                lightboxImg.src = '';
+            });
+
+            lightboxModal.addEventListener('click', (e) => {
+                if (e.target === lightboxModal) {
+                    lightboxModal.classList.add('hidden');
+                    lightboxImg.src = '';
+                }
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (lightboxModal.classList.contains('hidden')) return;
+                if (e.key === 'Escape') {
+                    lightboxModal.classList.add('hidden');
+                    lightboxImg.src = '';
+                } else if (e.key === 'ArrowLeft') {
+                    showImage(currentIndex - 1);
+                } else if (e.key === 'ArrowRight') {
+                    showImage(currentIndex + 1);
+                }
             });
         });
     </script>
